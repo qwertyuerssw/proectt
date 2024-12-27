@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition VK Search</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Распознавание лиц в поиске ВК</h1>
+        <form action="/" method="post" enctype="multipart/form-data">
+            <div class="custom-file-input">
+                <input type="file" name="file" id="file" required>
+                <label for="file" id="file-label" class="textt">Выберите файл</label>
+                <span id="file-name"></span> <!-- Добавлено для отображения имени файла -->
+            </div>
+            <input type="text" name="city" placeholder="Город">
+            <input type="text" name="name" placeholder="Имя">
+            <input type="submit" value="Загрузить" class="textt">
+        </form>
+
+        {% if error %}
+        <div class="error">
+            <p>{{ error }}</p>
+        </div>
+        {% endif %}
+
+        {% if face_locations %}
+        <h2>Найдено {{ face_locations|length }} лицо(а):</h2>
+        <ul>
+            {% for face_location in face_locations %}
+            <li>Верх: {{ face_location[0] }}, Право: {{ face_location[1] }}, Низ: {{ face_location[2] }}, Лево: {{ face_location[3] }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if vk_results %}
+        <h2>Совпадающие VK профили:</h2>
+        <ul>
+            {% for result in vk_results %}
+            <li>
+                <div class="profile-info">
+                    {% if result.photo_url %}
+                    <img src="{{ result.photo_url }}" alt="Profile picture">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='default_avatar.png') }}" alt="Default avatar">
+                    {% endif %}
+                    <div>
+                        <a href="{{ result.profile_url }}" target="_blank" title="Посмотреть профиль">{{ result.name }}</a>
+                        {% if result.error %}
+                        <p style="color: red;">{{ result.error }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    <script>
+        document.getElementById('file').addEventListener('change', function () {
+            var fileName = this.files[0].name;
+            document.getElementById('file-name').textContent = fileName;
+        });
+    </script>
+</body>
+</html>
